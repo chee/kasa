@@ -2,13 +2,22 @@
   "name": "kasa",
   "description": "a javascript for kasa veho lightbulbs",
   "bugs": "yes",
-  "keywords": ["ble", "smart light", "kasa veho", "tikteck", "bluetooth", "javascript"],
+  "keywords": [
+    "ble",
+    "smart light",
+    "kasa veho",
+    "tikteck",
+    "bluetooth",
+    "javascript"
+  ],
   "author": "chee",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
   "repository": "https://github.com/chee/kasa",
-  "engines": { "node": ">=6.4.0" },
+  "engines": {
+    "node": ">=6.4.0"
+  },
   "dependencies": {
     "noble": "^1.8.1"
   },
