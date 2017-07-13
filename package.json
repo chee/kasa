@@ -21,7 +21,7 @@
   "dependencies": {
     "noble": "^1.8.1"
   },
-  "optionalDependencies": {
+  "devDependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "tinygradient": "^0.3.1"
