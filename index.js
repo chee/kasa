@@ -2,6 +2,8 @@ const crypto = require('crypto')
 const noble = require('noble')
 
 const DEFAULT_NAME = 'Smart Light'
+
+// find your password out by connecting with the app while running `adb lolcat`
 const DEFAULT_PASSWORD = '234'
 
 const nobleReady = new Promise(resolve =>
