@@ -1,6 +1,6 @@
 const fs = require('fs')
 const net = require('net')
-const Blub = require('..')
+const Blub = require('kasa')
 const blubs = []
 const paired = []
 

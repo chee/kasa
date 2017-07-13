@@ -1,5 +1,5 @@
 const {createInterface} = require('readline')
-const {discover, pair, setColor} = require('..')
+const {discover, pair, setColor} = require('kasa')
 
 const blubs = []
 const paired = []

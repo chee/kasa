@@ -1,4 +1,4 @@
-const Blub = require('..')
+const Blub = require('kasa')
 const blubs = []
 const paired = []
 

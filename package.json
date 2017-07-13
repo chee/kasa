@@ -24,6 +24,10 @@
   "devDependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "tinygradient": "^0.3.1"
+    "tinygradient": "^0.3.1",
+    "require-self": "^0.2.1"
+  },
+  "scripts": {
+    "prepare": "require-self"
   }
 }
