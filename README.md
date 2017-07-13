@@ -60,6 +60,41 @@ discover()
 
 there are some silly examples in the directory called `play/`
 
+## api
+
+```js
+module.exports {
+  // find a bulb or every bulb forever
+  discover({name?, password?, address?}, callback?) -> Promise{Peripheral}
+  pair({Peripheral?, callback?) -> Promise{dispatch()}
+
+  // these return an array for use by the dispatch function that you get as
+  // a gift for pairing a peripheral
+  setColor(red, green, blue, brightness) -> [0xffff, 0xc1, ...args]
+  setDefaultColor(red, green, blue, brightness) -> [0xffff, 0xc4, ...args]
+}
+
+// when a bulb gets paired it returns a function (to callback and .then)
+// that lets you send commands to the bulb. i have called it dispatch because
+// i use redux at work every day and it seemed like the most appropriate word
+// because i don't know many words
+// it creates the packet and sends it to the blub
+// it returns an error if the command failed. i have never seen this happen so
+// i don't have much information on that
+dispatch([id, command, data], callback?) -> Promise{error}
+```
+
+note: there is currently a bug in noble that means it doesn't close even when
+we stop scanning, because it is still listening out for adapter changes. once
+the fix for that has merged, a `.stop()` will be added to the exports.
+
+## tests
+
+* there are literally none
+* &nbsp;
+* &nbsp;
+* &nbsp;
+
 ## todo:
 
 * clean up the code (vague!)
@@ -72,3 +107,5 @@ there are some silly examples in the directory called `play/`
 * learn the xaphoon
 * see how lb is doin
 * switch to crypto-js and pull parts out and see if this can run in web browsers
+
+<!-- i hope you are okay, i love you a lot -->
