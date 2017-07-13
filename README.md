@@ -3,9 +3,9 @@
 small library for kasa veho lightbulbs and others like it.
 
 could not have finished this if it were not for
-[https://mjg59.dreamwidth.org/43722.html](this blog post) and
-[https://github.com/mjg59/python-tikteck](this python library) by
-[https://twitter.com/mjg59](@mjg59). so thank you a billion times for writing
+[this blog post](https://mjg59.dreamwidth.org/43722.html) and
+[this python library](https://github.com/mjg59/python-tikteck) by
+[@mjg59](https://twitter.com/mjg59). so thank you a billion times for writing
 that and digging into that disassembled .so while i dug into nothing but shallow
 graves
 
@@ -13,7 +13,7 @@ you'll note that this is nearly a carbon copy of their library
 
 i couldn't run that because i wasn't on a loonix machine, so now this has
 happened and should work on lanux and macos maybe even windows if the stars
-align. relies on the wnoderful [noble](https://github.com/sandeepmistry/noble)
+align. relies on the wnoderful [https://github.com/sandeepmistry/noble](noble)
 
 ## use:
 
