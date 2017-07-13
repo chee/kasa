@@ -1,6 +1,9 @@
 const crypto = require('crypto')
 const noble = require('noble')
 
+const DEFAULT_NAME = 'Smart Light'
+const DEFAULT_PASSWORD = '234'
+
 const nobleReady = new Promise(resolve =>
   noble.on('stateChange', state => {
     state === 'poweredOn' && resolve()
@@ -81,7 +84,8 @@ function discover (options = {}, callback) {
       options = {}
     }
   }
-  const {name = 'Smart Light', password = '234', address} = options
+
+  const {name = DEFAULT_NAME, password = DEFAULT_PASSWORD, address} = options
   const discovery = new Promise(resolve => {
     noble.on('discover', thing => {
       if (thing.advertisement.localName !== name) return
