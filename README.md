@@ -13,7 +13,7 @@ you'll note that this is nearly a carbon copy of their library
 
 i couldn't run that because i wasn't on a loonix machine, so now this has
 happened and should work on lanux and macos maybe even windows if the stars
-align. relies on the wnoderful [https://github.com/sandeepmistry/noble](noble)
+align. relies on the wnoderful [noble](https://github.com/sandeepmistry/noble)
 
 ## use:
 
