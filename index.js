@@ -12,6 +12,11 @@ const nobleReady = new Promise(resolve =>
 
 const range = to => Array(to).fill().map((_, i) => i)
 
+const createResolver = ({callback, resolve}) => (...args) => {
+  callback && callback(...args)
+  return resolve(...args)
+}
+
 function encrypt (key, data) {
   key = Buffer.from(key)
   key.reverse()
@@ -87,22 +92,21 @@ function discover (options = {}, callback) {
 
   const {name = DEFAULT_NAME, password = DEFAULT_PASSWORD, address} = options
   const discovery = new Promise(resolve => {
+    const resolver = createResolver({callback, resolve})
     noble.on('discover', thing => {
       if (thing.advertisement.localName !== name) return
+
       thing.password = password
+
+      // if we were looking for a specific device, only resolve if we have it
       if (address) {
-        address === thing.address && connect(thing, (...args) => {
-          callback && callback(...args)
-          resolve(...args)
-        })
+        address === thing.address && connect(thing, resolver)
       } else {
-        connect(thing, (...args) => {
-          callback && callback(...args)
-          resolve(...args)
-        })
+        connect(thing, resolver)
       }
     })
   })
+
   noble.startScanning()
   return discovery
 }
@@ -113,6 +117,7 @@ function pair (light, callback) {
   const password = light.password
   const mac = light.address
   return new Promise(resolve => {
+    const resolver = createResolver({callback, resolve})
     light.discoverAllServicesAndCharacteristics(() => {
       const commandChar = light.services[1].characteristics[1]
       const pairChar = light.services[1].characteristics[3]
@@ -142,14 +147,11 @@ function pair (light, callback) {
             const encryptedPacket = encryptPacket(sk, macKey, [...packet])
             packetCount = packetCount > 0xffff ? 1 : packetCount + 1
             return new Promise(resolve => {
-              commandChar.write(encryptedPacket, false, (...args) => {
-                callback && callback(...args)
-                resolve(...args)
-              })
+              const resolver = createResolver({callback, resolve})
+              commandChar.write(encryptedPacket, false, resolver)
             })
           }
-          callback && callback(dispatch)
-          resolve(dispatch)
+          return resolver(dispatch)
         })
       })
     })
