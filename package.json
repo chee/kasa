@@ -1,0 +1,14 @@
+{
+  "name": "kasa",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "noble": "^1.8.1"
+  },
+  "optionalDependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "tinygradient": "^0.3.1"
+  }
+}

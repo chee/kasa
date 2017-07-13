@@ -1,0 +1,48 @@
+<!doctype html>
+<title>did you know that to be a valid html5 document you only need a doctype and a title</title>
+<style>
+  @keyframes woggle {
+    0% {
+      transform: rotate(-1deg)
+    }
+
+    100% {
+      transform: rotate(1deg)
+    }
+  }
+
+  * {
+    border: 2px solid hotpink;
+  }
+
+  body {
+    background: lime;
+  }
+
+  input {
+    display: 'block';
+    font-size: 4em;
+    height: 1em;
+    min-width: 2em;
+    line-height: 0.9;
+  }
+
+  pleasemakethis1wordadifferentcolour {
+    color: blue;
+    background: LightGoldenRodYellow;
+    padding: 1px;
+    animation: 0.123455678s infinite alternate woggle;
+    animation-delay: 1s;
+    display: inline-block;
+  }
+
+  [type="submit"] {
+    animation: 0.2s infinite woggle;
+  }
+</style>
+
+<h1> select a colour  and then please press <pleasemakethis1wordadifferentcolour>please</pleasemakethis1wordadifferentcolour></h1>
+<form action="http://localhost:8018/colors" method="POST">
+  <input type="color" name="color">
+  <input type="submit" value="please">
+</form>
