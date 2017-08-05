@@ -2,7 +2,8 @@ const crypto = require('crypto')
 const noble = require('noble')
 const {
   DEFAULT_NAME,
-  DEFAULT_PASSWORD
+  DEFAULT_PASSWORD,
+  CONTROL_SERVICE_UUID
 } = require('./constants')
 
 const nobleReady = new Promise(resolve =>
@@ -170,10 +171,16 @@ function pair (light, callback) {
   return new Promise(resolve => {
     const resolver = createResolver({callback, resolve})
     light.discoverAllServicesAndCharacteristics(() => {
-      const commandChar = light.services[1].characteristics[1]
-      const pairChar = light.services[1].characteristics[3]
+
+      const controlService = light.services.find(({uuid}) =>
+        uuid === CONTROL_SERVICE_UUID
+      )
+
+      const commandCharacteristic = controlService.characteristics[1]
+      const pairCharacteristic = controlService.characteristics[3]
       const data = [...initData]
       const encryptedKey = encryptKey(name, password, data)
+
       const packet = [0x0c]
         .concat(data.slice(0, 8))
         .concat([...encryptedKey].slice(0, 8))
@@ -186,6 +193,7 @@ function pair (light, callback) {
             data.slice(0, 8),
             received.slice(1, 9)
           )
+
           function dispatch ([id, command, data], callback) {
             const packet = createPairingPacket(data)
             const macKey = Buffer.from()
