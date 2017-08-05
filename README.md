@@ -13,7 +13,9 @@ you'll note that this is nearly a carbon copy of their library
 
 i couldn't run that because i wasn't on a loonix machine, so now this has
 happened and should work on lanux and macos maybe even windows if the stars
-align. relies on the wnoderful [noble](https://github.com/sandeepmistry/noble)
+align\*. relies on the wnoderful [noble](https://github.com/sandeepmistry/noble)
+
+\* **_edit: after some fixes, it now works fine on Apple's Macintosh Operating System, GNU/Linux and Microsoft Windows 10_**
 
 ## use:
 
@@ -99,12 +101,12 @@ the fix for that has merged, a `.stop()` will be added to the exports.
 
 * clean up the code (vague!)
 * fix vague todo items (which?)
-* find out why my tongue has lumps on it
+* find out why my tongue has lumps on it* \***_edit: the lumps are gone_**
 * revise the api when i have had literally any sleep in the past 3 years
 * get rich, die old
 * get to the top of Tom's top 8
 * wear sunscreen
-* learn the xaphoon
+* learn the xaphoon* \***_edit: i can play happy birthday on it_**
 * see how lb is doin
 * switch to crypto-js and pull parts out and see if this can run in web browsers
 
