@@ -185,8 +185,8 @@ function pair (light, callback) {
         .concat(data.slice(0, 8))
         .concat([...encryptedKey].slice(0, 8))
 
-      pairChar.write(new Buffer(packet), true, () => {
-        pairChar.read((error, received) => {
+      pairCharacteristic.write(new Buffer(packet), true, () => {
+        pairCharacteristic.read((error, received) => {
           const sk = generateSk(
             name,
             password,
@@ -201,7 +201,7 @@ function pair (light, callback) {
             packetCount = packetCount > 0xffff ? 1 : packetCount + 1
             return new Promise(resolve => {
               const resolver = createResolver({callback, resolve})
-              commandChar.write(encryptedPacket, false, resolver)
+              commandCharacteristic.write(encryptedPacket, false, resolver)
             })
           }
           return resolver(dispatch)
