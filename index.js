@@ -12,8 +12,7 @@ const nobleReady = new Promise(resolve =>
   })
 )
 
-const range = to =>
-  Array(to).fill().map((_, i) => i)
+const range = to => Array(to).fill().map((_, i) => i)
 
 // pass this the callback and a new Promise's resolve and it will give you a
 // function you can pass down as a callback to noble
@@ -21,11 +20,6 @@ const createResolver = ({callback, resolve}) => (...args) => {
   callback && callback(...args)
   return resolve(...args)
 }
-
-const pad = (padding = 0, size = 16, list) =>
-  list.length < size
-    ? [...list].concat(Array(size - list.length).fill(padding))
-    : [...list]
 
 const emptyBuffer = Buffer.from([])
 
@@ -70,6 +64,7 @@ function encryptKey (name, password, data) {
 }
 
 // mutate me mor
+// TODO very rewrite this
 function encryptPacket (sk, mac, packet) {
   let tmp = [
     ...mac.slice(0, 4),
@@ -89,9 +84,15 @@ function encryptPacket (sk, mac, packet) {
     packet[i + 3] = tmp[i]
   })
 
-  tmp = [0, ...mac.slice(0, 4), 0x01, ...packet.slice(0, 3), 0, 0, 0, 0, 0, 0, 0]
+  tmp = [
+    0,
+    ...mac.slice(0, 4),
+    0x01,
+    ...packet.slice(0, 3),
+    0, 0, 0, 0, 0, 0, 0
+  ]
 
-  tmp2 = []
+  let tmp2 = []
 
   range(15).forEach(i => {
     if (i === 0) {
@@ -137,21 +138,25 @@ function discover (options = {}, callback) {
   return discovery
 }
 
-function createPairingPacket (data) {
-  const packet = Array(20).fill(0)
-  packet[0] = packetCount & 0xff
-  packet[1] = packetCount >> 8 & 0xff
-  packet[5] = id & 0xff
-  packet[6] = id & 0xff | 0x80
-  packet[7] = command
-  packet[8] = 0x69
-  packet[9] = 0x69
-  packet[10] = data[0]
-  packet[11] = data[1]
-  packet[12] = data[2]
-  packet[13] = data[3]
-  return packet
-}
+const createPacket = (function () {
+  let packetCount = Math.random() * 0xffff | 0
+  return function createPacket (id, command, data) {
+    const packet = Array(20).fill(0)
+    packet[0] = packetCount & 0xff
+    packet[1] = packetCount >> 8 & 0xff
+    packet[5] = id & 0xff
+    packet[6] = id & 0xff | 0x80
+    packet[7] = command
+    packet[8] = 0x69
+    packet[9] = 0x69
+    packet[10] = data[0]
+    packet[11] = data[1]
+    packet[12] = data[2]
+    packet[13] = data[3]
+    packetCount = packetCount > 0xffff ? 1 : packetCount + 1
+    return packet
+  }
+})()
 
 function parseMacAddress (mac) {
   return mac
@@ -164,18 +169,16 @@ function parseMacAddress (mac) {
 const initData = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0, 0, 0, 0, 0, 0, 0, 0]
 
 function pair (light, callback) {
-  let packetCount = Math.random() * 0xffff | 0
   const name = light.name || light.advertisement.localName
   const password = light.password
-  const mac = light.address
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const resolver = createResolver({callback, resolve})
     light.discoverAllServicesAndCharacteristics(() => {
-
       const controlService = light.services.find(({uuid}) =>
         uuid === CONTROL_SERVICE_UUID
       )
 
+      // it might be wise to use the characteristics' uuid also
       const commandCharacteristic = controlService.characteristics[1]
       const pairCharacteristic = controlService.characteristics[3]
       const data = [...initData]
@@ -187,6 +190,8 @@ function pair (light, callback) {
 
       pairCharacteristic.write(new Buffer(packet), true, () => {
         pairCharacteristic.read((error, received) => {
+          if (error) return reject(error)
+
           const sk = generateSk(
             name,
             password,
@@ -195,10 +200,9 @@ function pair (light, callback) {
           )
 
           function dispatch ([id, command, data], callback) {
-            const packet = createPairingPacket(data)
-            const macKey = Buffer.from()
+            const packet = createPacket(id, command, data)
+            const macKey = Buffer.from(parseMacAddress(light.address))
             const encryptedPacket = encryptPacket(sk, macKey, packet)
-            packetCount = packetCount > 0xffff ? 1 : packetCount + 1
             return new Promise(resolve => {
               const resolver = createResolver({callback, resolve})
               commandCharacteristic.write(encryptedPacket, false, resolver)
