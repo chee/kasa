@@ -11,19 +11,38 @@ const nobleReady = new Promise(resolve =>
   })
 )
 
-const range = to => Array(to).fill().map((_, i) => i)
+const range = to =>
+  Array(to).fill().map((_, i) => i)
 
+// pass this the callback and a new Promise's resolve and it will give you a
+// function you can pass down as a callback to noble
 const createResolver = ({callback, resolve}) => (...args) => {
   callback && callback(...args)
   return resolve(...args)
 }
 
+const pad = (padding = 0, size = 16, list) =>
+  list.length < size
+    ? [...list].concat(Array(size - list.length).fill(padding))
+    : [...list]
+
+const emptyBuffer = Buffer.from([])
+
+// encrypt the packet in the manner the kasa bulb expects
 function encrypt (key, data) {
   key = Buffer.from(key)
   key.reverse()
   data = Buffer.from(data)
   data.reverse()
-  const cipher = crypto.createCipheriv('aes-128-ecb', key, Buffer.from([]))
+
+  // use createCipheriv, as createCipher expects a password as a string rather
+  // than a Buffer
+  const cipher = crypto.createCipheriv(
+    'aes-128-ecb',
+    key,
+    // empty buffer, for we have no iv
+    emptyBuffer
+  )
   const encryptedData = cipher.update(data).reverse()
   return encryptedData
 }
@@ -51,7 +70,12 @@ function encryptKey (name, password, data) {
 
 // mutate me mor
 function encryptPacket (sk, mac, packet) {
-  let tmp = [...mac.slice(0, 4), 0x01, ...packet.slice(0, 3), 15, 0, 0, 0, 0, 0, 0, 0]
+  let tmp = [
+    ...mac.slice(0, 4),
+    0x01,
+    ...packet.slice(0, 3),
+    15, 0, 0, 0, 0, 0, 0, 0
+  ]
   tmp = encrypt(sk, tmp)
 
   range(15).forEach(i => {
@@ -112,6 +136,32 @@ function discover (options = {}, callback) {
   return discovery
 }
 
+function createPairingPacket (data) {
+  const packet = Array(20).fill(0)
+  packet[0] = packetCount & 0xff
+  packet[1] = packetCount >> 8 & 0xff
+  packet[5] = id & 0xff
+  packet[6] = id & 0xff | 0x80
+  packet[7] = command
+  packet[8] = 0x69
+  packet[9] = 0x69
+  packet[10] = data[0]
+  packet[11] = data[1]
+  packet[12] = data[2]
+  packet[13] = data[3]
+  return packet
+}
+
+function parseMacAddress (mac) {
+  return mac
+    .split(':')
+    .slice(0, 6)
+    .reverse()
+    .map(n => parseInt(n, 16))
+}
+
+const initData = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0, 0, 0, 0, 0, 0, 0, 0]
+
 function pair (light, callback) {
   let packetCount = Math.random() * 0xffff | 0
   const name = light.name || light.advertisement.localName
@@ -122,7 +172,7 @@ function pair (light, callback) {
     light.discoverAllServicesAndCharacteristics(() => {
       const commandChar = light.services[1].characteristics[1]
       const pairChar = light.services[1].characteristics[3]
-      const data = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0, 0, 0, 0, 0, 0, 0, 0]
+      const data = [...initData]
       const encryptedKey = encryptKey(name, password, data)
       const packet = [0x0c]
         .concat(data.slice(0, 8))
@@ -130,22 +180,16 @@ function pair (light, callback) {
 
       pairChar.write(new Buffer(packet), true, () => {
         pairChar.read((error, received) => {
-          const sk = generateSk(name, password, data.slice(0, 8), received.slice(1, 9))
+          const sk = generateSk(
+            name,
+            password,
+            data.slice(0, 8),
+            received.slice(1, 9)
+          )
           function dispatch ([id, command, data], callback) {
-            const packet = Array(20).fill(0)
-            packet[0] = packetCount & 0xff
-            packet[1] = packetCount >> 8 & 0xff
-            packet[5] = id & 0xff
-            packet[6] = id & 0xff | 0x80
-            packet[7] = command
-            packet[8] = 0x69
-            packet[9] = 0x69
-            packet[10] = data[0]
-            packet[11] = data[1]
-            packet[12] = data[2]
-            packet[13] = data[3]
-            const macKey = Buffer.from(mac.split(':').slice(0, 6).reverse().map(n => parseInt(n, 16)))
-            const encryptedPacket = encryptPacket(sk, macKey, [...packet])
+            const packet = createPairingPacket(data)
+            const macKey = Buffer.from()
+            const encryptedPacket = encryptPacket(sk, macKey, packet)
             packetCount = packetCount > 0xffff ? 1 : packetCount + 1
             return new Promise(resolve => {
               const resolver = createResolver({callback, resolve})
