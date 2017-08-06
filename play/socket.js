@@ -17,7 +17,7 @@ Blub.discover(blub => {
 const path = '/tmp/blub'
 
 fs.unlink(path, () => {
-  const server = net.createServer(connection => {
+  net.createServer(connection => {
     connection.on('data', data => {
       const hexmatch = data.toString().match(/^#([\da-z]{2})([\da-z]{2})([\da-z]{2})$/)
       const rgbmatch = data.toString().match(/^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\)$/)
@@ -35,4 +35,3 @@ fs.unlink(path, () => {
     console.log('server bound on %s', path)
   })
 })
-
